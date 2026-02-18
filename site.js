@@ -199,6 +199,33 @@
         });
     }
 
+    // ---- THEME TOGGLE ----
+    const themeToggle = document.getElementById('themeToggle');
+    const themeToggleMobile = document.getElementById('themeToggleMobile');
+    const htmlEl = document.documentElement;
+
+    function updateToggleIcons() {
+        const isLight = htmlEl.classList.contains('light');
+        const icon = isLight ? '\u263E' : '\u2600';  // ☾ or ☀
+        if (themeToggle) themeToggle.textContent = icon;
+        if (themeToggleMobile) themeToggleMobile.textContent = icon;
+    }
+
+    // Apply saved preference on load
+    if (localStorage.getItem('theme') === 'light') {
+        htmlEl.classList.add('light');
+    }
+    updateToggleIcons();
+
+    function toggleTheme() {
+        htmlEl.classList.toggle('light');
+        localStorage.setItem('theme', htmlEl.classList.contains('light') ? 'light' : 'dark');
+        updateToggleIcons();
+    }
+
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
+
     // ---- SMOOTH SCROLL ----
     document.querySelectorAll('a[href^="#"]').forEach(a => {
         a.addEventListener('click', function(e) {

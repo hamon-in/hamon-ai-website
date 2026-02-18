@@ -25,6 +25,62 @@
             --font-mono: 'IBM Plex Mono', monospace;
         }
 
+        /* ---- LIGHT MODE OVERRIDES ---- */
+        html.light {
+            --bg: #f0f2f5;
+            --bg-surface: #e4e7eb;
+            --bg-elevated: #ffffff;
+            --green: #007a3a;
+            --green-bright: #009245;
+            --green-dim: #b2d8c4;
+            --green-glow: rgba(0, 122, 58, 0.25);
+            --green-subtle: rgba(0, 122, 58, 0.06);
+            --text: #1a1e24;
+            --text-muted: #4a5568;
+            --text-dim: #8899aa;
+            --border: rgba(0, 122, 58, 0.15);
+        }
+
+        html.light body::after {
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 122, 58, 0.015) 2px,
+                rgba(0, 122, 58, 0.015) 4px
+            );
+            animation: none;
+            opacity: 0.4;
+        }
+
+        html.light body::before {
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.06) 100%);
+        }
+
+        html.light .nav-main.scrolled {
+            background: rgba(240, 242, 245, 0.92);
+        }
+
+        html.light .case-modal-close {
+            background: rgba(240, 242, 245, 0.7);
+        }
+
+        html.light .hero-brain-container {
+            opacity: 0.35;
+        }
+
+        html.light .brain-node { opacity: 0.8; }
+        html.light .brain-connection { opacity: 0.2; }
+        html.light .brain-ring { opacity: 0.12; }
+
+        html.light .modal-backdrop.show { opacity: 0.5; }
+
+        html.light .nav-logo img,
+        html.light .footer-logo img {
+            filter: brightness(0);
+            opacity: 0.7;
+        }
+
         *, *::before, *::after { box-sizing: border-box; }
 
         ::selection { background: var(--green); color: #fff; }
@@ -38,6 +94,7 @@
             background: var(--bg);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         /* ---- SCANLINE OVERLAY ---- */
@@ -691,13 +748,21 @@
         }
 
         /* ---- PRESENCE ---- */
-        .presence { background: var(--bg); }
+        .presence {
+            background: var(--bg);
+            padding: 3.5rem 0;
+        }
+
+        .presence .section-title {
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            margin-bottom: 0.75rem;
+        }
 
         .location-row {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: 1.25rem 0;
+            padding: 0.7rem 0;
             border-bottom: 1px solid var(--border);
             transition: all 0.3s;
         }
@@ -709,13 +774,13 @@
         .loc-city {
             font-family: var(--font-display);
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 0.95rem;
             transition: color 0.3s;
         }
 
         .loc-region {
             font-family: var(--font-mono);
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: var(--text-muted);
             letter-spacing: 0.08em;
         }
@@ -723,7 +788,6 @@
         /* ---- CTA ---- */
         .cta-section {
             background: var(--bg-surface);
-            text-align: center;
             position: relative;
             overflow: hidden;
         }
@@ -731,17 +795,17 @@
         .cta-section .cta-bg-brain {
             position: absolute;
             top: 50%;
-            left: 50%;
+            left: 25%;
             transform: translate(-50%, -50%);
-            width: 600px;
-            opacity: 0.15;
+            width: 500px;
+            opacity: 0.1;
             pointer-events: none;
         }
 
         .cta-headline {
             font-family: var(--font-display);
             font-weight: 800;
-            font-size: clamp(2rem, 4.5vw, 3.8rem);
+            font-size: clamp(1.8rem, 3.5vw, 3rem);
             color: var(--text);
             line-height: 1.1;
             margin-bottom: 1.25rem;
@@ -752,8 +816,38 @@
             font-size: 1rem;
             color: var(--text-muted);
             max-width: 440px;
-            margin: 0 auto 2.5rem;
+            margin: 0 0 2rem;
             line-height: 1.7;
+        }
+
+        .cta-contact {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .cta-contact-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--green);
+        }
+
+        .cta-email {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .cta-email:hover {
+            color: var(--green);
+            text-shadow: 0 0 20px var(--green-glow);
         }
 
         /* ---- FOOTER ---- */
@@ -1074,6 +1168,40 @@
 
         .modal-backdrop.show { opacity: 0.85; }
 
+        /* ---- THEME TOGGLE ---- */
+        .theme-toggle {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            line-height: 1;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            color: var(--green);
+            border-color: var(--green);
+        }
+
+        .theme-toggle-mobile {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .theme-toggle-mobile:hover {
+            color: var(--green);
+            border-color: var(--green);
+        }
+
         /* ---- REVEAL ---- */
         .reveal {
             opacity: 0;
@@ -1107,6 +1235,8 @@
             .protocol-step { flex-direction: column; gap: 0.5rem; }
             .step-num { min-width: auto; }
             .cta-headline { font-size: 1.8rem; }
+            .cta-contact { margin-top: 2rem; }
+            .presence { padding: 2.5rem 0; }
 
             .case-modal-content { margin: 0.5rem; }
             .case-modal-image-wrap { height: 180px; }
@@ -1138,7 +1268,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-4">
                     <a href="#" class="nav-logo">
-                        <img src="https://hamon.in/wp-content/themes/hamon/assets/Hamon_Logo_V4-011%202.svg" alt="Hamon Technologies">
+                        <img src="images/hamon-logo.svg" alt="Hamon Technologies">
                     </a>
                     <span class="nav-status d-none d-md-flex">
                         <span class="status-dot"></span> SYSTEMS ONLINE
@@ -1149,6 +1279,7 @@
                     <li><a href="#protocol">Protocol</a></li>
                     <li><a href="#work">Work</a></li>
                     <li><a href="#transmissions">Blog</a></li>
+                    <li><button id="themeToggle" class="theme-toggle" aria-label="Toggle light mode">☀</button></li>
                     <li><a href="#contact" class="nav-cta">Interface</a></li>
                 </ul>
                 <button class="hamburger d-lg-none" id="menuToggle" aria-label="Menu">
@@ -1166,6 +1297,7 @@
         <a href="#work" class="mobile-link">Work</a>
         <a href="#transmissions" class="mobile-link">Blog</a>
         <a href="#contact" class="mobile-link">Interface</a>
+        <button id="themeToggleMobile" class="theme-toggle-mobile" aria-label="Toggle light mode">☀</button>
     </div>
 
     <!-- HERO -->
@@ -1378,7 +1510,7 @@
     <div class="section-divider"></div>
 
     <!-- PRESENCE -->
-    <section class="presence section-padding">
+    <section class="presence">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 reveal">
@@ -1448,12 +1580,20 @@
                 <circle cx="300" cy="300" r="100" fill="none" stroke="#009245" stroke-width="0.3" opacity="0.15"/>
                 <circle cx="300" cy="300" r="4" fill="#009245" opacity="0.4"/>
             </svg>
-            <div class="row justify-content-center">
-                <div class="col-lg-7 reveal">
-                    <div class="section-tag justify-content-center">Open Channel</div>
+            <div class="row align-items-center">
+                <div class="col-lg-6 reveal">
+                    <div class="section-tag">Open Channel</div>
                     <h2 class="cta-headline">Ready to deploy intelligence?</h2>
                     <p class="cta-sub">Whether you're exploring AI for the first time or scaling existing systems — open a channel.</p>
-                    <a href="mailto:hello@hamon.in" class="btn-interface">hello@hamon.in</a>
+                </div>
+                <div class="col-lg-5 offset-lg-1 reveal reveal-delay-1">
+                    <div class="cta-contact">
+                        <div>
+                            <div class="cta-contact-label">Email</div>
+                            <a href="mailto:hello@hamon.in" class="cta-email">hello@hamon.in</a>
+                        </div>
+                        <a href="mailto:hello@hamon.in" class="btn-interface">Initiate Contact</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1465,7 +1605,7 @@
             <div class="row align-items-center">
                 <div class="col-md-4 mb-3 mb-md-0">
                     <div class="footer-logo">
-                        <img src="https://hamon.in/wp-content/themes/hamon/assets/Hamon_Logo_V4-011%202.svg" alt="Hamon Technologies">
+                        <img src="images/hamon-logo.svg" alt="Hamon Technologies">
                     </div>
                 </div>
                 <div class="col-md-4 text-md-center mb-3 mb-md-0">
