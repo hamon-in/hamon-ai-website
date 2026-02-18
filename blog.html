@@ -126,17 +126,49 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html.light .nav-main {
+            background: rgba(240, 242, 245, 0.92);
         }
 
         .nav-logo img {
             height: 32px;
-            opacity: 0.9;
             transition: opacity 0.3s;
         }
 
-        .nav-logo:hover img { opacity: 1; }
+        .nav-status {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--green);
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-        .nav-back {
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--green-glow); }
+            50% { opacity: 0.4; box-shadow: none; }
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0; padding: 0;
+            align-items: center;
+        }
+
+        .nav-links a {
             font-family: var(--font-mono);
             font-size: 0.72rem;
             font-weight: 500;
@@ -147,7 +179,109 @@
             transition: color 0.3s;
         }
 
-        .nav-back:hover { color: var(--green); }
+        .nav-links a:hover { color: var(--green); }
+
+        .nav-cta {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.55rem 1.4rem;
+            border: 1px solid var(--green);
+            color: var(--green);
+            background: transparent;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-cta:hover {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 0 20px var(--green-glow);
+        }
+
+        .theme-toggle {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            line-height: 1;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .theme-toggle:hover { color: var(--green); border-color: var(--green); }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px; height: 1.5px;
+            background: var(--green);
+            transition: all 0.3s;
+        }
+
+        .mobile-nav {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .mobile-nav.open { opacity: 1; pointer-events: all; }
+
+        .mobile-nav a {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .mobile-nav a:hover { color: var(--green); }
+
+        .mobile-nav-close {
+            position: absolute;
+            top: 1.5rem; right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--green);
+            line-height: 1;
+        }
+
+        .theme-toggle-mobile {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .theme-toggle-mobile:hover { color: var(--green); border-color: var(--green); }
 
         /* Loading animation */
         .cyber-loader {
@@ -493,6 +627,9 @@
         }
 
         @media (max-width: 991px) {
+            .nav-links { display: none !important; }
+            .nav-status { display: none !important; }
+            .hamburger { display: flex; }
             .article-sidebar { display: none; }
         }
 
@@ -509,13 +646,39 @@
     <nav class="nav-main">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <a href="index.html" class="nav-logo">
-                    <img src="images/hamon-logo.svg" alt="Hamon Technologies">
-                </a>
-                <a href="index.html#transmissions" class="nav-back">&larr; Back to network</a>
+                <div class="d-flex align-items-center gap-4">
+                    <a href="index.html" class="nav-logo">
+                        <img src="images/hamon-logo.svg" alt="Hamon Technologies">
+                    </a>
+                    <span class="nav-status d-none d-md-flex">
+                        <span class="status-dot"></span> SYSTEMS ONLINE
+                    </span>
+                </div>
+                <ul class="nav-links d-none d-lg-flex">
+                    <li><a href="index.html#agents">Agents</a></li>
+                    <li><a href="index.html#protocol">Protocol</a></li>
+                    <li><a href="index.html#work">Work</a></li>
+                    <li><a href="index.html#transmissions">Blog</a></li>
+                    <li><button id="themeToggle" class="theme-toggle" aria-label="Toggle light mode">☀</button></li>
+                    <li><a href="index.html#contact" class="nav-cta">Interface</a></li>
+                </ul>
+                <button class="hamburger d-lg-none" id="menuToggle" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav">
+        <button class="mobile-nav-close" id="menuClose" aria-label="Close">&times;</button>
+        <a href="index.html#agents" class="mobile-link">Agents</a>
+        <a href="index.html#protocol" class="mobile-link">Protocol</a>
+        <a href="index.html#work" class="mobile-link">Work</a>
+        <a href="index.html#transmissions" class="mobile-link">Blog</a>
+        <a href="index.html#contact" class="mobile-link">Interface</a>
+        <button id="themeToggleMobile" class="theme-toggle-mobile" aria-label="Toggle light mode">☀</button>
+    </div>
 
     <!-- CONTENT -->
     <div class="article-container">
@@ -669,6 +832,40 @@
                 showError('Could not load transmission data.');
             });
     })();
+
+    // ---- MOBILE NAV ----
+    var menuToggle = document.getElementById('menuToggle');
+    var menuClose = document.getElementById('menuClose');
+    var mobileNav = document.getElementById('mobileNav');
+    if (menuToggle && menuClose && mobileNav) {
+        menuToggle.addEventListener('click', function() { mobileNav.classList.add('open'); });
+        menuClose.addEventListener('click', function() { mobileNav.classList.remove('open'); });
+        document.querySelectorAll('.mobile-link').forEach(function(l) {
+            l.addEventListener('click', function() { mobileNav.classList.remove('open'); });
+        });
+    }
+
+    // ---- THEME TOGGLE ----
+    var themeToggle = document.getElementById('themeToggle');
+    var themeToggleMobile = document.getElementById('themeToggleMobile');
+    var htmlEl = document.documentElement;
+
+    function updateToggleIcons() {
+        var isLight = htmlEl.classList.contains('light');
+        var icon = isLight ? '\u263E' : '\u2600';
+        if (themeToggle) themeToggle.textContent = icon;
+        if (themeToggleMobile) themeToggleMobile.textContent = icon;
+    }
+    updateToggleIcons();
+
+    function toggleTheme() {
+        htmlEl.classList.toggle('light');
+        localStorage.setItem('theme', htmlEl.classList.contains('light') ? 'light' : 'dark');
+        updateToggleIcons();
+    }
+
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
     </script>
 </body>
 </html>
