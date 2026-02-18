@@ -692,14 +692,27 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.15) 2px,
-                rgba(0, 0, 0, 0.15) 4px
-            );
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.12) 2px,
+                    rgba(0, 0, 0, 0.12) 4px
+                ),
+                linear-gradient(
+                    0deg,
+                    rgba(0, 146, 69, 0.08) 0%,
+                    transparent 8%
+                );
+            background-size: 100% 4px, 100% 200%;
+            animation: card-scanline 4s linear infinite;
             z-index: 1;
+        }
+
+        @keyframes card-scanline {
+            0% { background-position: 0 0, 0 -100%; }
+            100% { background-position: 0 0, 0 100%; }
         }
 
         .work-pattern {
