@@ -75,12 +75,6 @@
 
         html.light .modal-backdrop.show { opacity: 0.5; }
 
-        html.light .nav-logo img,
-        html.light .footer-logo img {
-            filter: brightness(0);
-            opacity: 0.7;
-        }
-
         *, *::before, *::after { box-sizing: border-box; }
 
         ::selection { background: var(--green); color: #fff; }
@@ -747,42 +741,25 @@
             line-height: 1.6;
         }
 
-        /* ---- PRESENCE ---- */
-        .presence {
-            background: var(--bg);
-            padding: 3.5rem 0;
-        }
-
-        .presence .section-title {
-            font-size: clamp(1.2rem, 2vw, 1.6rem);
-            margin-bottom: 0.75rem;
-        }
-
-        .location-row {
+        /* ---- CTA NODES (locations) ---- */
+        .cta-nodes {
             display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding: 0.7rem 0;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .location-row:first-child { border-top: 1px solid var(--border); }
-
-        .location-row:hover .loc-city { color: var(--green); }
-
-        .loc-city {
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 0.95rem;
-            transition: color 0.3s;
-        }
-
-        .loc-region {
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 3.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
             font-family: var(--font-mono);
             font-size: 0.6rem;
-            color: var(--text-muted);
             letter-spacing: 0.08em;
+            color: var(--text-dim);
+        }
+
+        .cta-nodes-label {
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            opacity: 0.6;
         }
 
         /* ---- CTA ---- */
@@ -1236,7 +1213,7 @@
             .step-num { min-width: auto; }
             .cta-headline { font-size: 1.8rem; }
             .cta-contact { margin-top: 2rem; }
-            .presence { padding: 2.5rem 0; }
+            .cta-nodes { flex-wrap: wrap; gap: 0.75rem 1.25rem; }
 
             .case-modal-content { margin: 0.5rem; }
             .case-modal-image-wrap { height: 180px; }
@@ -1509,38 +1486,6 @@
 
     <div class="section-divider"></div>
 
-    <!-- PRESENCE -->
-    <section class="presence">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 reveal">
-                    <div class="section-tag">Network Nodes</div>
-                    <h2 class="section-title">Global presence, local signal</h2>
-                </div>
-                <div class="col-lg-6 offset-lg-2 reveal reveal-delay-1">
-                    <div class="location-row">
-                        <span class="loc-city">Calicut</span>
-                        <span class="loc-region">Kerala, India</span>
-                    </div>
-                    <div class="location-row">
-                        <span class="loc-city">Trivandrum</span>
-                        <span class="loc-region">Kerala, India</span>
-                    </div>
-                    <div class="location-row">
-                        <span class="loc-city">Mississauga</span>
-                        <span class="loc-region">Ontario, Canada</span>
-                    </div>
-                    <div class="location-row">
-                        <span class="loc-city">Mountain House</span>
-                        <span class="loc-region">California, USA</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-
     <!-- BLOG / TRANSMISSIONS -->
     <section class="section-padding" id="transmissions" style="background: var(--bg-surface);">
         <div class="container">
@@ -1595,6 +1540,13 @@
                         <a href="mailto:hello@hamon.in" class="btn-interface">Initiate Contact</a>
                     </div>
                 </div>
+            </div>
+            <div class="cta-nodes reveal reveal-delay-2">
+                <span class="cta-nodes-label">// Nodes</span>
+                <span>Calicut</span>
+                <span>Trivandrum</span>
+                <span>Mississauga</span>
+                <span>Mountain House</span>
             </div>
         </div>
     </section>
