@@ -228,13 +228,47 @@
     }
 
     function parseCaseBlock(block) {
-        const lines = block.split('\n').map(l => l.trim()).filter(l => l);
-        if (lines.length < 2) return null;
-        const tag = lines[0];
-        const titleLine = lines.find(l => l.startsWith('# '));
+        const lines = block.split('\n');
+        const trimmed = lines.map(l => l.trim());
+        const nonEmpty = trimmed.filter(l => l.length > 0);
+        if (nonEmpty.length < 2) return null;
+
+        const tag = nonEmpty[0];
+        const titleLine = nonEmpty.find(l => l.startsWith('# '));
         const title = titleLine ? titleLine.replace(/^# /, '') : '';
-        const desc = lines.filter(l => !l.startsWith('# ') && l !== tag).join(' ');
-        return { tag, title, desc };
+
+        let image = '';
+        let url = '';
+        const imageLine = nonEmpty.find(l => l.startsWith('image:'));
+        if (imageLine) image = imageLine.replace(/^image:\s*/, '');
+        const urlLine = nonEmpty.find(l => l.startsWith('url:'));
+        if (urlLine) url = urlLine.replace(/^url:\s*/, '');
+
+        // Split on first blank line to separate short desc from long desc
+        const metaKeys = new Set([tag, titleLine, imageLine, urlLine].filter(Boolean));
+        const contentLines = trimmed.slice(trimmed.indexOf(tag.length ? tag : trimmed[0]));
+
+        // Find first blank line index in the original trimmed array (after the tag line)
+        const tagIdx = trimmed.indexOf(tag);
+        let blankIdx = -1;
+        for (let i = tagIdx + 1; i < trimmed.length; i++) {
+            if (trimmed[i] === '') { blankIdx = i; break; }
+        }
+
+        // Content lines = lines that aren't tag, title, image:, url:, or blank
+        const isMetaLine = l => l === tag || l.startsWith('# ') || l.startsWith('image:') || l.startsWith('url:') || l === '';
+
+        let shortDesc = '';
+        let longDesc = '';
+
+        if (blankIdx > -1) {
+            shortDesc = trimmed.slice(tagIdx, blankIdx).filter(l => !isMetaLine(l)).join(' ');
+            longDesc = trimmed.slice(blankIdx + 1).filter(l => l.length > 0).join(' ');
+        } else {
+            shortDesc = nonEmpty.filter(l => !isMetaLine(l)).join(' ');
+        }
+
+        return { tag, title, image, url, shortDesc, longDesc };
     }
 
     function parsePostBlock(block) {
@@ -267,23 +301,71 @@
                 casesGrid.style.display = '';
 
                 cases.forEach((c, i) => {
+                    const visualHTML = c.image
+                        ? `<img class="work-card-image" src="${c.image}" alt="${c.title}" loading="lazy">`
+                        : `<div class="work-pattern ${patterns[i % patterns.length]}"></div>`;
+
                     const col = document.createElement('div');
                     col.className = 'col-lg-4';
                     col.innerHTML = `
-                        <div class="work-card card-fade-in" style="animation-delay: ${i * 0.1}s">
-                            <div class="work-card-visual"><div class="work-pattern ${patterns[i % patterns.length]}"></div></div>
+                        <div class="work-card clickable card-fade-in" style="animation-delay: ${i * 0.1}s" data-case-idx="${i}">
+                            <div class="work-card-visual">${visualHTML}</div>
                             <div class="work-card-body">
                                 <div class="work-card-tag">${c.tag}</div>
                                 <h3 class="work-card-title">${c.title}</h3>
-                                <p class="work-card-desc">${c.desc}</p>
                             </div>
                         </div>`;
                     casesGrid.appendChild(col);
+
+                    // Click handler to open modal
+                    col.querySelector('.work-card').addEventListener('click', () => {
+                        openCaseModal(c);
+                    });
                 });
             })
             .catch(() => {
                 casesLoader.innerHTML = '<span class="loader-text" style="color: var(--text-muted);">Failed to load case studies</span>';
             });
+    }
+
+    // ---- CASE MODAL LOGIC ----
+    function openCaseModal(c) {
+        const modalEl = document.getElementById('caseModal');
+        if (!modalEl) return;
+
+        const imageWrap = document.getElementById('caseModalImageWrap');
+        const tagEl = document.getElementById('caseModalTag');
+        const titleEl = document.getElementById('caseModalTitle');
+        const urlEl = document.getElementById('caseModalUrl');
+        const descEl = document.getElementById('caseModalDesc');
+
+        // Image
+        if (c.image) {
+            imageWrap.innerHTML = `<img src="${c.image}" alt="${c.title}">`;
+            imageWrap.classList.add('has-image');
+        } else {
+            imageWrap.innerHTML = '';
+            imageWrap.classList.remove('has-image');
+        }
+
+        // Tag & title
+        tagEl.textContent = c.tag;
+        titleEl.textContent = c.title;
+
+        // URL
+        if (c.url) {
+            urlEl.href = c.url;
+            urlEl.textContent = c.url.replace(/^https?:\/\//, '');
+            urlEl.style.display = '';
+        } else {
+            urlEl.style.display = 'none';
+        }
+
+        // Description — show long desc if available, otherwise short
+        const descText = c.longDesc || c.shortDesc;
+        descEl.textContent = descText;
+
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
 
     // ---- DYNAMIC BLOG FROM posts.md ----
