@@ -263,7 +263,6 @@
             font-size: 1.05rem;
             line-height: 1.85;
             color: var(--text-muted);
-            max-width: 720px;
         }
 
         .article-body h2 {
@@ -376,6 +375,73 @@
             box-shadow: 0 0 20px var(--green-glow);
         }
 
+        /* Sidebar TOC */
+        .article-sidebar {
+            position: sticky;
+            top: 5rem;
+            padding-top: 0.25rem;
+        }
+
+        .toc-label {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toc-label::before {
+            content: '//';
+            opacity: 0.4;
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-left: 1px solid var(--border);
+            padding-left: 1rem;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.6rem;
+        }
+
+        .toc-list a {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.03em;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: block;
+            line-height: 1.4;
+        }
+
+        .toc-list a:hover,
+        .toc-list a.active {
+            color: var(--green);
+        }
+
+        .sidebar-back {
+            display: inline-block;
+            margin-top: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .sidebar-back:hover { color: var(--green); }
+
         /* Footer */
         .footer {
             background: var(--bg);
@@ -426,6 +492,10 @@
             margin-bottom: 1rem;
         }
 
+        @media (max-width: 991px) {
+            .article-sidebar { display: none; }
+        }
+
         @media (max-width: 767px) {
             .article-container { padding-top: 5.5rem; }
             .article-title { font-size: 1.8rem; }
@@ -450,8 +520,15 @@
     <!-- CONTENT -->
     <div class="article-container">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
+            <div class="row">
+                <div class="col-lg-3">
+                    <aside class="article-sidebar" id="articleSidebar" style="display:none;">
+                        <div class="toc-label">Contents</div>
+                        <ul class="toc-list" id="tocList"></ul>
+                        <a href="index.html#transmissions" class="sidebar-back">&larr; All transmissions</a>
+                    </aside>
+                </div>
+                <div class="col-lg-9">
 
                     <!-- Loader -->
                     <div class="cyber-loader" id="postLoader">
@@ -552,6 +629,41 @@
                     <div class="article-body">${html}</div>
                     <a href="index.html#transmissions" class="back-link">&larr; Back to transmissions</a>
                 `;
+
+                // Generate TOC from h2 headings
+                const sidebar = document.getElementById('articleSidebar');
+                const tocList = document.getElementById('tocList');
+                const headings = content.querySelectorAll('.article-body h2');
+                if (headings.length > 0 && tocList && sidebar) {
+                    headings.forEach(function(h, i) {
+                        const id = 'section-' + i;
+                        h.id = id;
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = '#' + id;
+                        a.textContent = h.textContent;
+                        a.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+                        li.appendChild(a);
+                        tocList.appendChild(li);
+                    });
+                    sidebar.style.display = '';
+
+                    // Scroll spy — highlight active TOC link
+                    var tocLinks = tocList.querySelectorAll('a');
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                tocLinks.forEach(function(l) { l.classList.remove('active'); });
+                                var active = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+                                if (active) active.classList.add('active');
+                            }
+                        });
+                    }, { rootMargin: '0px 0px -60% 0px', threshold: 0 });
+                    headings.forEach(function(h) { observer.observe(h); });
+                }
             })
             .catch(() => {
                 showError('Could not load transmission data.');
