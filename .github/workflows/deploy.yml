@@ -1,0 +1,20 @@
+name: Deploy to alpha.hamon.in
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 24.199.99.226
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "index.html,blog.html,site.js,posts.md,cases.md"
+          target: /var/www/alpha/

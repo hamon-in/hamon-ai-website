@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamon Technologies — AI Agents</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060a10;
+            --bg-surface: #0c1219;
+            --bg-elevated: #111a24;
+            --green: #009245;
+            --green-bright: #00c45a;
+            --green-dim: #004d25;
+            --green-glow: rgba(0, 146, 69, 0.4);
+            --green-subtle: rgba(0, 146, 69, 0.08);
+            --text: #d8e2ec;
+            --text-muted: #4a5d72;
+            --text-dim: #2a3a4a;
+            --border: rgba(0, 146, 69, 0.12);
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        ::selection { background: var(--green); color: #fff; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            font-size: 1.05rem;
+            color: var(--text);
+            background: var(--bg);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- SCANLINE OVERLAY ---- */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 146, 69, 0.03) 2px,
+                rgba(0, 146, 69, 0.03) 4px
+            );
+            animation: scanline-flicker 4s ease-in-out infinite;
+        }
+
+        @keyframes scanline-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+            52% { opacity: 1; }
+            80% { opacity: 0.85; }
+            82% { opacity: 1; }
+        }
+
+        /* ---- CRT VIGNETTE ---- */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.45) 100%);
+        }
+
+        /* ---- NAV ---- */
+        .nav-main {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.25rem 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-bottom: 1px solid transparent;
+        }
+
+        .nav-main.scrolled {
+            padding: 0.7rem 0;
+            background: rgba(6, 10, 16, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom-color: var(--border);
+        }
+
+        .nav-logo img {
+            height: 32px;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .nav-logo:hover img { opacity: 1; }
+
+        .nav-status {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--green);
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--green-glow); }
+            50% { opacity: 0.4; box-shadow: none; }
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--green); }
+
+        .nav-cta {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.55rem 1.4rem;
+            border: 1px solid var(--green);
+            color: var(--green);
+            background: transparent;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-cta:hover {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 0 20px var(--green-glow);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: var(--green);
+            transition: all 0.3s;
+        }
+
+        /* ---- MOBILE NAV ---- */
+        .mobile-nav {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .mobile-nav.open { opacity: 1; pointer-events: all; }
+
+        .mobile-nav a {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .mobile-nav a:hover { color: var(--green); }
+
+        .mobile-nav-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--green);
+            line-height: 1;
+        }
+
+        /* ---- HERO ---- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 8rem 0 6rem;
+        }
+
+        .hero-brain-container {
+            position: absolute;
+            top: 50%;
+            right: -5%;
+            transform: translateY(-50%);
+            width: 55vw;
+            max-width: 800px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Neural brain SVG animations */
+        .brain-node {
+            fill: var(--green);
+            opacity: 0.6;
+        }
+
+        .brain-node-core {
+            fill: var(--green-bright);
+            opacity: 0;
+            animation: node-pulse 3s ease-in-out infinite;
+        }
+
+        .brain-connection {
+            stroke: var(--green);
+            stroke-width: 0.5;
+            opacity: 0.15;
+        }
+
+        .brain-signal {
+            fill: var(--green-bright);
+            opacity: 0;
+        }
+
+        .brain-ring {
+            fill: none;
+            stroke: var(--green);
+            opacity: 0.08;
+        }
+
+        @keyframes node-pulse {
+            0%, 100% { opacity: 0; r: 2; }
+            50% { opacity: 0.8; r: 4; }
+        }
+
+        /* Orchestrator central node */
+        .brain-orchestrator {
+            fill: var(--green-bright);
+            opacity: 0.9;
+        }
+
+        .brain-orchestrator-glow {
+            fill: none;
+            stroke: var(--green-bright);
+            opacity: 0;
+            animation: orchestrator-pulse 3s ease-in-out infinite;
+        }
+
+        .brain-orchestrator-glow-outer {
+            fill: none;
+            stroke: var(--green);
+            opacity: 0;
+            animation: orchestrator-pulse 3s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes orchestrator-pulse {
+            0%, 100% { opacity: 0; stroke-width: 1; }
+            50% { opacity: 0.6; stroke-width: 2; }
+        }
+
+        @keyframes signal-travel {
+            0% { offset-distance: 0%; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
+        }
+
+        .hero-content { position: relative; z-index: 2; }
+
+        .hero-terminal {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--green);
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hero-terminal::before {
+            content: '>';
+            font-weight: 600;
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 7px;
+            height: 14px;
+            background: var(--green);
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .hero-headline {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: clamp(2.8rem, 6.5vw, 5.5rem);
+            line-height: 1.0;
+            color: var(--text);
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
+        .hero-headline .accent {
+            color: var(--green);
+            text-shadow: 0 0 40px var(--green-glow);
+        }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin-bottom: 3rem;
+        }
+
+        .hero-actions { display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; }
+
+        .btn-interface {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 0.9rem 2.2rem;
+            background: var(--green);
+            color: #fff;
+            border: 1px solid var(--green);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .btn-interface:hover {
+            background: var(--green-bright);
+            color: #fff;
+            box-shadow: 0 0 30px var(--green-glow), inset 0 0 30px rgba(0,146,69,0.1);
+        }
+
+        .btn-ghost {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 0.9rem 2.2rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .hero-metrics {
+            display: flex;
+            gap: 3rem;
+            margin-top: 5rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .metric-value {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--text);
+        }
+
+        .metric-value .unit {
+            font-size: 0.7em;
+            color: var(--green);
+        }
+
+        .metric-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-top: 0.25rem;
+        }
+
+        /* ---- SECTION COMMON ---- */
+        .section-padding { padding: 7rem 0; }
+
+        .section-tag {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-tag::before {
+            content: '//';
+            opacity: 0.4;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            color: var(--text);
+        }
+
+        .section-desc {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            max-width: 500px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, var(--green), transparent);
+            opacity: 0.15;
+        }
+
+        /* ---- AGENTS (SERVICES) ---- */
+        .agents { background: var(--bg-surface); }
+
+        .agent-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .agent-card:hover::before { opacity: 1; }
+
+        .agent-card:hover {
+            border-color: rgba(0, 146, 69, 0.3);
+            box-shadow: 0 0 40px rgba(0, 146, 69, 0.05);
+        }
+
+        .agent-id {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            color: var(--green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .agent-id .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2.5s ease-in-out infinite;
+        }
+
+        .agent-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .agent-desc {
+            font-size: 0.88rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .agent-caps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .agent-cap {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.65rem;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            transition: all 0.3s;
+        }
+
+        .agent-card:hover .agent-cap {
+            border-color: rgba(0, 146, 69, 0.25);
+            color: var(--text-muted);
+        }
+
+        /* ---- PROTOCOL (APPROACH) ---- */
+        .protocol { background: var(--bg); }
+
+        .protocol-steps { margin-top: 4rem; }
+
+        .protocol-step {
+            display: flex;
+            gap: 3rem;
+            padding: 2.5rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .protocol-step:first-child {
+            border-top: 1px solid var(--border);
+        }
+
+        .protocol-step:hover .step-num {
+            color: var(--green-bright);
+            text-shadow: 0 0 20px var(--green-glow);
+        }
+
+        .step-num {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            min-width: 40px;
+            padding-top: 0.3rem;
+            transition: all 0.3s;
+        }
+
+        .step-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .step-desc {
+            font-size: 0.88rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            max-width: 560px;
+        }
+
+        /* ---- WORK ---- */
+        .work { background: var(--bg-surface); }
+
+        .work-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+        }
+
+        .work-card:hover {
+            border-color: rgba(0, 146, 69, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .work-card-visual {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .work-pattern {
+            position: absolute;
+            inset: 0;
+        }
+
+        .work-pattern-1 {
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0,146,69,0.2), transparent 60%),
+                repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(0,146,69,0.04) 15px, rgba(0,146,69,0.04) 16px);
+        }
+
+        .work-pattern-2 {
+            background:
+                radial-gradient(circle at 80% 30%, rgba(0,196,90,0.15), transparent 50%),
+                repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,146,69,0.03) 20px, rgba(0,146,69,0.03) 21px),
+                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0,146,69,0.03) 20px, rgba(0,146,69,0.03) 21px);
+        }
+
+        .work-pattern-3 {
+            background:
+                radial-gradient(circle at 50% 70%, rgba(0,146,69,0.2), transparent 50%),
+                conic-gradient(from 45deg, transparent 0%, rgba(0,146,69,0.03) 25%, transparent 25%);
+            background-size: 100% 100%, 30px 30px;
+        }
+
+        .work-card-body { padding: 2rem; }
+
+        .work-card-tag {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 0.75rem;
+        }
+
+        .work-card-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .work-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ---- PRESENCE ---- */
+        .presence { background: var(--bg); }
+
+        .location-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .location-row:first-child { border-top: 1px solid var(--border); }
+
+        .location-row:hover .loc-city { color: var(--green); }
+
+        .loc-city {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.25rem;
+            transition: color 0.3s;
+        }
+
+        .loc-region {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        /* ---- CTA ---- */
+        .cta-section {
+            background: var(--bg-surface);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section .cta-bg-brain {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .cta-headline {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: clamp(2rem, 4.5vw, 3.8rem);
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .cta-sub {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 440px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* ---- FOOTER ---- */
+        .footer {
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            padding: 2.5rem 0;
+        }
+
+        .footer-logo img {
+            height: 24px;
+            opacity: 0.5;
+        }
+
+        .footer-copy {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer-links a {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--green); }
+
+        /* ---- NEON GLOW ENHANCEMENTS ---- */
+        .btn-interface:hover {
+            box-shadow: 0 0 30px var(--green-glow), 0 0 60px rgba(0,146,69,0.15), inset 0 0 30px rgba(0,146,69,0.1);
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 20px var(--green-glow), 0 0 40px rgba(0,146,69,0.1);
+        }
+
+        .agent-card:hover {
+            box-shadow: 0 0 40px rgba(0, 146, 69, 0.08), 0 0 80px rgba(0, 146, 69, 0.03);
+        }
+
+        .work-card:hover {
+            box-shadow: 0 0 40px rgba(0, 146, 69, 0.08), 0 0 80px rgba(0, 146, 69, 0.03);
+        }
+
+        /* ---- LOADING ANIMATION ---- */
+        .cyber-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .cyber-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .loader-ring {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+        }
+
+        .loader-ring .ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: loader-spin 1.5s linear infinite, loader-pulse 2s ease-in-out infinite;
+        }
+
+        .loader-ring .ring:nth-child(2) {
+            inset: 8px;
+            border-top-color: transparent;
+            border-right-color: var(--green-bright);
+            animation-direction: reverse;
+            animation-duration: 2s, 2s;
+        }
+
+        .loader-ring .ring:nth-child(3) {
+            inset: 16px;
+            border-top-color: var(--green-dim);
+            border-left-color: var(--green-dim);
+            animation-duration: 2.5s, 2s;
+        }
+
+        .loader-glyph {
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--green);
+            animation: loader-orbit 3s linear infinite;
+        }
+
+        .loader-glyph:nth-child(4) { animation-delay: 0s; }
+        .loader-glyph:nth-child(5) { animation-delay: -1s; }
+        .loader-glyph:nth-child(6) { animation-delay: -2s; }
+
+        @keyframes loader-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes loader-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes loader-orbit {
+            0% { transform: rotate(0deg) translateX(48px) rotate(0deg); opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { transform: rotate(360deg) translateX(48px) rotate(-360deg); opacity: 0.8; }
+        }
+
+        .loader-text {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: var(--green);
+            text-transform: uppercase;
+            animation: loader-pulse 2s ease-in-out infinite;
+        }
+
+        /* ---- BLOG CARDS ---- */
+        .blog-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            text-decoration: none;
+            display: block;
+        }
+
+        .blog-card:hover {
+            border-color: rgba(0, 146, 69, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 0 40px rgba(0, 146, 69, 0.08);
+        }
+
+        .blog-card-date {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 0.75rem;
+        }
+
+        .blog-card-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+        }
+
+        .blog-card-excerpt {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .blog-card-link {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            text-decoration: none;
+        }
+
+        .blog-card:hover .blog-card-link { text-shadow: 0 0 10px var(--green-glow); }
+
+        /* Stagger fade-in for dynamically loaded cards */
+        .card-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: card-appear 0.5s ease forwards;
+        }
+
+        @keyframes card-appear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---- REVEAL ---- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 991px) {
+            .nav-links { display: none !important; }
+            .nav-status { display: none !important; }
+            .hamburger { display: flex; }
+            .hero-brain-container { width: 90vw; right: -25%; opacity: 0.3; }
+            .hero-metrics { gap: 2rem; flex-wrap: wrap; }
+            .protocol-step { gap: 1.5rem; }
+        }
+
+        @media (max-width: 767px) {
+            .section-padding { padding: 4.5rem 0; }
+            .hero { padding: 7rem 0 4rem; }
+            .hero-headline { font-size: 2.2rem; }
+            .hero-brain-container { display: none; }
+            .hero-metrics { flex-direction: column; gap: 1.25rem; }
+            .protocol-step { flex-direction: column; gap: 0.5rem; }
+            .step-num { min-width: auto; }
+            .cta-headline { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="nav-main" id="mainNav">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-4">
+                    <a href="#" class="nav-logo">
+                        <img src="https://hamon.in/wp-content/themes/hamon/assets/Hamon_Logo_V4-011%202.svg" alt="Hamon Technologies">
+                    </a>
+                    <span class="nav-status d-none d-md-flex">
+                        <span class="status-dot"></span> SYSTEMS ONLINE
+                    </span>
+                </div>
+                <ul class="nav-links d-none d-lg-flex">
+                    <li><a href="#agents">Agents</a></li>
+                    <li><a href="#protocol">Protocol</a></li>
+                    <li><a href="#work">Work</a></li>
+                    <li><a href="#transmissions">Blog</a></li>
+                    <li><a href="#contact" class="nav-cta">Interface</a></li>
+                </ul>
+                <button class="hamburger d-lg-none" id="menuToggle" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav">
+        <button class="mobile-nav-close" id="menuClose" aria-label="Close">&times;</button>
+        <a href="#agents" class="mobile-link">Agents</a>
+        <a href="#protocol" class="mobile-link">Protocol</a>
+        <a href="#work" class="mobile-link">Work</a>
+        <a href="#transmissions" class="mobile-link">Blog</a>
+        <a href="#contact" class="mobile-link">Interface</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="heroSection">
+        <!-- ANIMATED CYBERNETIC BRAIN SVG -->
+        <div class="hero-brain-container" id="brainContainer">
+            <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" id="neuralBrain">
+                <!-- Outer rings -->
+                <circle class="brain-ring" cx="300" cy="300" r="280" stroke-width="0.5" />
+                <circle class="brain-ring" cx="300" cy="300" r="240" stroke-width="0.3" />
+                <circle class="brain-ring" cx="300" cy="300" r="180" stroke-width="0.3" />
+                <!-- Connections will be generated by JS -->
+                <g id="connections"></g>
+                <!-- Nodes will be generated by JS -->
+                <g id="nodes"></g>
+                <!-- Signals will be generated by JS -->
+                <g id="signals"></g>
+                <!-- Orchestrator node -->
+                <g id="orchestrator">
+                    <circle class="brain-orchestrator-glow-outer" cx="300" cy="290" r="24" />
+                    <circle class="brain-orchestrator-glow" cx="300" cy="290" r="16" />
+                    <circle class="brain-orchestrator" cx="300" cy="290" r="5" />
+                </g>
+            </svg>
+        </div>
+
+        <div class="container hero-content">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="hero-terminal reveal">
+                        <span id="terminalText"></span><span class="cursor-blink"></span>
+                    </div>
+                    <h1 class="hero-headline reveal reveal-delay-1">
+                        Your direct interface to <span class="accent">autonomous AI agents</span>
+                    </h1>
+                    <p class="hero-sub reveal reveal-delay-2">
+                        We deploy specialized AI agents that think, reason, and execute — transforming your operations from the inside out. Not tools. Teammates.
+                    </p>
+                    <div class="hero-actions reveal reveal-delay-3">
+                        <a href="#contact" class="btn-interface">Initiate Contact</a>
+                        <a href="#agents" class="btn-ghost">Explore Agents</a>
+                    </div>
+                    <div class="hero-metrics reveal reveal-delay-4">
+                        <div>
+                            <div class="metric-value">50<span class="unit">+</span></div>
+                            <div class="metric-label">Deployments</div>
+                        </div>
+                        <div>
+                            <div class="metric-value">4</div>
+                            <div class="metric-label">Global Nodes</div>
+                        </div>
+                        <div>
+                            <div class="metric-value">8<span class="unit">yr</span></div>
+                            <div class="metric-label">AI Operations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- AGENTS -->
+    <section class="agents section-padding" id="agents">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-5 reveal">
+                    <div class="section-tag">Agent Registry</div>
+                    <h2 class="section-title">Specialized agents, deployed for your mission</h2>
+                </div>
+                <div class="col-lg-5 offset-lg-2 d-flex align-items-end reveal reveal-delay-1">
+                    <p class="section-desc">Each agent is purpose-built with deep domain expertise. They don't just assist — they autonomously execute complex workflows end-to-end.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 reveal reveal-delay-1">
+                    <div class="agent-card">
+                        <div class="agent-id"><span class="dot" style="animation-delay: 0s;"></span> AGENT::STRATEGIST</div>
+                        <h3 class="agent-name">AI Strategy &amp; Consulting</h3>
+                        <p class="agent-desc">Scans your data landscape, maps business objectives, and architects AI roadmaps tied to measurable outcomes. The thinking layer before any code is written.</p>
+                        <div class="agent-caps">
+                            <span class="agent-cap">Feasibility Analysis</span>
+                            <span class="agent-cap">Data Audit</span>
+                            <span class="agent-cap">Roadmap Design</span>
+                            <span class="agent-cap">ROI Modeling</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 reveal reveal-delay-2">
+                    <div class="agent-card">
+                        <div class="agent-id"><span class="dot" style="animation-delay: 0.5s;"></span> AGENT::BUILDER</div>
+                        <h3 class="agent-name">Machine Learning Engineering</h3>
+                        <p class="agent-desc">Custom model development from classical ML through deep learning and LLM fine-tuning. Builds models that perform in production — not just in notebooks.</p>
+                        <div class="agent-caps">
+                            <span class="agent-cap">Deep Learning</span>
+                            <span class="agent-cap">NLP / LLMs</span>
+                            <span class="agent-cap">Computer Vision</span>
+                            <span class="agent-cap">Fine-tuning</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 reveal reveal-delay-3">
+                    <div class="agent-card">
+                        <div class="agent-id"><span class="dot" style="animation-delay: 1s;"></span> AGENT::PIPELINE</div>
+                        <h3 class="agent-name">Data Engineering &amp; Infrastructure</h3>
+                        <p class="agent-desc">Designs and deploys the nervous system — ETL pipelines, data lakes, real-time streaming architectures on modern cloud platforms that feed your AI.</p>
+                        <div class="agent-caps">
+                            <span class="agent-cap">AWS / GCP</span>
+                            <span class="agent-cap">Data Pipelines</span>
+                            <span class="agent-cap">Real-time Streams</span>
+                            <span class="agent-cap">MLOps</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 reveal reveal-delay-4">
+                    <div class="agent-card">
+                        <div class="agent-id"><span class="dot" style="animation-delay: 1.5s;"></span> AGENT::INTERFACE</div>
+                        <h3 class="agent-name">AI Product Development</h3>
+                        <p class="agent-desc">Full-stack engineering of the surfaces humans touch — web, mobile, APIs — with intelligent features woven into every interaction layer.</p>
+                        <div class="agent-caps">
+                            <span class="agent-cap">Web &amp; Mobile</span>
+                            <span class="agent-cap">API Design</span>
+                            <span class="agent-cap">Agent UX</span>
+                            <span class="agent-cap">Deployment</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- PROTOCOL -->
+    <section class="protocol section-padding" id="protocol">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 reveal">
+                    <div class="section-tag">Engagement Protocol</div>
+                    <h2 class="section-title">How we interface with your problem</h2>
+                    <p class="section-desc">A structured methodology refined over years of deploying AI systems across industries. Every engagement follows this sequence.</p>
+                </div>
+                <div class="col-lg-6 offset-lg-1">
+                    <div class="protocol-steps">
+                        <div class="protocol-step reveal">
+                            <div class="step-num">001</div>
+                            <div>
+                                <h3 class="step-title">Scan &amp; Map</h3>
+                                <p class="step-desc">Deep analysis of your domain, data topology, and business objectives. We define the problem precisely and set success criteria before any code.</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step reveal reveal-delay-1">
+                            <div class="step-num">002</div>
+                            <div>
+                                <h3 class="step-title">Prototype &amp; Validate</h3>
+                                <p class="step-desc">Rapid experimentation with real data. We build proof-of-concept models, test hypotheses, and fail fast to converge on what actually works.</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step reveal reveal-delay-2">
+                            <div class="step-num">003</div>
+                            <div>
+                                <h3 class="step-title">Build &amp; Harden</h3>
+                                <p class="step-desc">Production-grade engineering. Prototypes become robust systems with proper testing, monitoring, CI/CD, and infrastructure that scales.</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step reveal reveal-delay-3">
+                            <div class="step-num">004</div>
+                            <div>
+                                <h3 class="step-title">Deploy &amp; Evolve</h3>
+                                <p class="step-desc">Launch is the beginning. We set up MLOps, monitor model drift, and iterate. Your systems get sharper over time, never stale.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- WORK -->
+    <section class="work section-padding" id="work">
+        <div class="container">
+            <div class="row mb-5 reveal">
+                <div class="col-lg-5">
+                    <div class="section-tag">Mission Log</div>
+                    <h2 class="section-title">Deployments that moved the needle</h2>
+                </div>
+            </div>
+
+            <!-- Loading animation -->
+            <div class="cyber-loader" id="casesLoader">
+                <div class="loader-ring">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <span class="loader-glyph">&#x30A2;</span>
+                    <span class="loader-glyph">&#x30C7;</span>
+                    <span class="loader-glyph">&#x30BF;</span>
+                </div>
+                <span class="loader-text">Decrypting...</span>
+            </div>
+
+            <div class="row g-4" id="casesGrid" style="display:none;"></div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- PRESENCE -->
+    <section class="presence section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 reveal">
+                    <div class="section-tag">Network Nodes</div>
+                    <h2 class="section-title">Global presence, local signal</h2>
+                </div>
+                <div class="col-lg-6 offset-lg-2 reveal reveal-delay-1">
+                    <div class="location-row">
+                        <span class="loc-city">Calicut</span>
+                        <span class="loc-region">Kerala, India</span>
+                    </div>
+                    <div class="location-row">
+                        <span class="loc-city">Trivandrum</span>
+                        <span class="loc-region">Kerala, India</span>
+                    </div>
+                    <div class="location-row">
+                        <span class="loc-city">Mississauga</span>
+                        <span class="loc-region">Ontario, Canada</span>
+                    </div>
+                    <div class="location-row">
+                        <span class="loc-city">Mountain House</span>
+                        <span class="loc-region">California, USA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- BLOG / TRANSMISSIONS -->
+    <section class="section-padding" id="transmissions" style="background: var(--bg-surface);">
+        <div class="container">
+            <div class="row mb-5 reveal">
+                <div class="col-lg-5">
+                    <div class="section-tag">Transmissions</div>
+                    <h2 class="section-title">Dispatches from the network</h2>
+                </div>
+            </div>
+
+            <!-- Loading animation -->
+            <div class="cyber-loader" id="blogLoader">
+                <div class="loader-ring">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <span class="loader-glyph">&#x30E9;</span>
+                    <span class="loader-glyph">&#x30A4;</span>
+                    <span class="loader-glyph">&#x30F3;</span>
+                </div>
+                <span class="loader-text">Loading transmission...</span>
+            </div>
+
+            <div class="row g-4" id="blogGrid" style="display:none;"></div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- CTA -->
+    <section class="cta-section section-padding" id="contact">
+        <div class="container position-relative">
+            <!-- Background brain silhouette -->
+            <svg class="cta-bg-brain" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="300" cy="300" r="200" fill="none" stroke="#009245" stroke-width="0.5" opacity="0.3"/>
+                <circle cx="300" cy="300" r="150" fill="none" stroke="#009245" stroke-width="0.3" opacity="0.2"/>
+                <circle cx="300" cy="300" r="100" fill="none" stroke="#009245" stroke-width="0.3" opacity="0.15"/>
+                <circle cx="300" cy="300" r="4" fill="#009245" opacity="0.4"/>
+            </svg>
+            <div class="row justify-content-center">
+                <div class="col-lg-7 reveal">
+                    <div class="section-tag justify-content-center">Open Channel</div>
+                    <h2 class="cta-headline">Ready to deploy intelligence?</h2>
+                    <p class="cta-sub">Whether you're exploring AI for the first time or scaling existing systems — open a channel.</p>
+                    <a href="mailto:hello@hamon.in" class="btn-interface">hello@hamon.in</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="footer-logo">
+                        <img src="https://hamon.in/wp-content/themes/hamon/assets/Hamon_Logo_V4-011%202.svg" alt="Hamon Technologies">
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-center mb-3 mb-md-0">
+                    <span class="footer-copy">&copy; 2026 Hamon Technologies</span>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <ul class="footer-links justify-content-md-end">
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="site.js"></script>
+</body>
+</html>
