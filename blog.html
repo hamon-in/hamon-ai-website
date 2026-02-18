@@ -25,6 +25,41 @@
             --font-mono: 'IBM Plex Mono', monospace;
         }
 
+        /* ---- LIGHT MODE OVERRIDES ---- */
+        html.light {
+            --bg: #f0f2f5;
+            --bg-surface: #e4e7eb;
+            --bg-elevated: #ffffff;
+            --green: #007a3a;
+            --green-bright: #009245;
+            --green-dim: #b2d8c4;
+            --green-glow: rgba(0, 122, 58, 0.25);
+            --green-subtle: rgba(0, 122, 58, 0.06);
+            --text: #1a1e24;
+            --text-muted: #4a5568;
+            --text-dim: #8899aa;
+            --border: rgba(0, 122, 58, 0.15);
+        }
+
+        html.light body::after {
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 2px,
+                rgba(0, 122, 58, 0.015) 2px, rgba(0, 122, 58, 0.015) 4px
+            );
+            animation: none;
+            opacity: 0.4;
+        }
+
+        html.light body::before {
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.06) 100%);
+        }
+
+        html.light .nav-main {
+            background: rgba(240, 242, 245, 0.92);
+        }
+
+        html.light .modal-backdrop.show { opacity: 0.5; }
+
         *, *::before, *::after { box-sizing: border-box; }
         ::selection { background: var(--green); color: #fff; }
         html { scroll-behavior: smooth; }
@@ -35,6 +70,7 @@
             background: var(--bg);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         /* Scanlines */
@@ -384,6 +420,7 @@
             .article-title { font-size: 1.8rem; }
         }
     </style>
+    <script>if(localStorage.getItem('theme')==='light')document.documentElement.classList.add('light');</script>
 </head>
 <body>
 
