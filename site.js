@@ -398,6 +398,7 @@
     // ---- DYNAMIC BLOG FROM posts.md ----
     const blogLoader = document.getElementById('blogLoader');
     const blogGrid = document.getElementById('blogGrid');
+    const blogList = document.getElementById('blogList');
 
     if (blogLoader && blogGrid) {
         fetch('posts.md')
@@ -405,24 +406,39 @@
             .then(text => {
                 const blocks = parseMdSections(text);
                 const posts = blocks.map(parsePostBlock).filter(p => p.title);
-                const recent = posts.slice(0, 3);
 
                 blogLoader.classList.add('hidden');
                 blogGrid.style.display = '';
 
-                recent.forEach((p, i) => {
-                    const globalIdx = i;
+                // First post as a featured card
+                if (posts.length > 0) {
+                    const p = posts[0];
                     const col = document.createElement('div');
-                    col.className = 'col-lg-4';
+                    col.className = 'col-lg-8';
                     col.innerHTML = `
-                        <a href="blog.html?post=${globalIdx}" class="blog-card card-fade-in" style="animation-delay: ${i * 0.1}s">
+                        <a href="blog.html?post=0" class="blog-card card-fade-in">
                             <div class="blog-card-date">${p.date}</div>
                             <h3 class="blog-card-title">${p.title}</h3>
                             <p class="blog-card-excerpt">${p.excerpt}</p>
                             <span class="blog-card-link">Read transmission &rarr;</span>
                         </a>`;
                     blogGrid.appendChild(col);
-                });
+                }
+
+                // Remaining posts as a compact list
+                if (posts.length > 1 && blogList) {
+                    blogList.style.display = '';
+                    posts.slice(1).forEach((p, i) => {
+                        const a = document.createElement('a');
+                        a.href = `blog.html?post=${i + 1}`;
+                        a.className = 'blog-list-item card-fade-in';
+                        a.style.animationDelay = `${i * 0.05}s`;
+                        a.innerHTML = `
+                            <span class="blog-list-date">${p.date}</span>
+                            <span class="blog-list-title">${p.title}</span>`;
+                        blogList.appendChild(a);
+                    });
+                }
             })
             .catch(() => {
                 blogLoader.innerHTML = '<span class="loader-text" style="color: var(--text-muted);">No transmissions found</span>';

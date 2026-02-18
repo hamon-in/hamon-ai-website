@@ -1055,6 +1055,46 @@
 
         .blog-card:hover .blog-card-link { text-shadow: 0 0 10px var(--green-glow); }
 
+        /* ---- BLOG LIST (non-featured posts) ---- */
+        .blog-list {
+            margin-top: 2.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .blog-list-item {
+            display: flex;
+            align-items: baseline;
+            gap: 1.5rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .blog-list-item:hover {
+            padding-left: 0.5rem;
+        }
+
+        .blog-list-item:hover .blog-list-title {
+            color: var(--green);
+        }
+
+        .blog-list-date {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .blog-list-title {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
         /* Stagger fade-in for dynamically loaded cards */
         .card-fade-in {
             opacity: 0;
@@ -1548,6 +1588,7 @@
             </div>
 
             <div class="row g-4" id="blogGrid" style="display:none;"></div>
+            <div class="blog-list" id="blogList" style="display:none;"></div>
         </div>
     </section>
 
