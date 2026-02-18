@@ -3,9 +3,9 @@
 # Initializing Transmission
 First dispatch from the Hamon network. On building AI agents that actually think, reason, and act autonomously.
 
-The age of passive AI tools is ending. What comes next are systems that don't just respond — they *initiate*. Agents that observe, plan, and execute multi-step workflows without hand-holding.
+The age of passive AI tools is over. What comes next are systems that don't just respond — they *initiate*. Agents that observe, plan, and execute multi-step workflows without hand-holding.
 
-At Hamon, we've been building these systems for years. Not chatbots. Not copilots. Fully autonomous agents deployed inside real businesses, handling real operations — from data pipeline orchestration to customer interaction flows.
+We've been building these systems for a while now. Not chatbots. Not copilots. Fully autonomous agents deployed inside real businesses, handling real operations — from data pipeline orchestration to customer interaction flows.
 
 ## What makes an agent different?
 
@@ -25,5 +25,4 @@ The remaining 20% is where humans add irreplaceable value: judgment, creativity,
 
 We're not replacing people. We're removing the bottleneck between *knowing what to do* and *getting it done*.
 
-More transmissions incoming. Stay connected.
 ---

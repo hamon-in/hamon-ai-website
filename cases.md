@@ -1,13 +1,10 @@
 ---
-EdTech // AI
-# Genskill
-AI-driven skill assessment and personalized learning pathways for technical education at scale.
+Game // AI
+# The Strand Files
+AI-generated interactive fiction in the style of Sherlock Holmes
+https://strandfiles.com
 ---
-HealthTech // ML
-# Giblib
-Intelligent medical video platform with ML-powered search and content recommendations.
----
-Gaming // Blockchain
-# RoboRampage
-Multiplayer game with on-chain assets and AI-driven matchmaking systems.
+INFRA // AI // HPC
+# HPCInfra
+On prem AI and HPC infrastructure platform designed for EDA and other workloads
 ---
