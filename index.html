@@ -740,12 +740,6 @@
 
         /* ---- CTA NODES (locations) ---- */
         .cta-nodes {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-top: 3.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
             font-family: var(--font-mono);
             font-size: 0.6rem;
             letter-spacing: 0.08em;
@@ -757,6 +751,13 @@
             text-transform: uppercase;
             letter-spacing: 0.15em;
             opacity: 0.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .cta-nodes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
         }
 
         /* ---- CTA ---- */
@@ -794,34 +795,31 @@
             line-height: 1.7;
         }
 
-        .cta-contact {
-            display: flex;
-            flex-direction: column;
+        .cta-bottom {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
             align-items: flex-start;
-            gap: 1.5rem;
         }
 
-        .cta-contact-label {
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            font-weight: 600;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--green);
+        .cta-contact {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
         }
 
         .cta-email {
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 1.4rem;
-            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
             text-decoration: none;
             transition: color 0.3s;
         }
 
         .cta-email:hover {
             color: var(--green);
-            text-shadow: 0 0 20px var(--green-glow);
         }
 
         /* ---- FOOTER ---- */
@@ -1209,8 +1207,8 @@
             .protocol-step { flex-direction: column; gap: 0.5rem; }
             .step-num { min-width: auto; }
             .cta-headline { font-size: 1.8rem; }
-            .cta-contact { margin-top: 2rem; }
-            .cta-nodes { flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+            .cta-bottom { margin-top: 2rem; }
+            .cta-nodes { margin-top: 1.5rem; }
 
             .case-modal-content { margin: 0.5rem; }
             .case-modal-image-wrap { height: 180px; }
@@ -1523,28 +1521,31 @@
                 <circle cx="300" cy="300" r="100" fill="none" stroke="#009245" stroke-width="0.3" opacity="0.15"/>
                 <circle cx="300" cy="300" r="4" fill="#009245" opacity="0.4"/>
             </svg>
-            <div class="row align-items-center">
-                <div class="col-lg-6 reveal">
+            <div class="row reveal">
+                <div class="col-lg-7">
                     <div class="section-tag">Open Channel</div>
                     <h2 class="cta-headline">Ready to deploy intelligence?</h2>
                     <p class="cta-sub">Whether you're exploring AI for the first time or scaling existing systems — open a channel.</p>
                 </div>
-                <div class="col-lg-5 offset-lg-1 reveal reveal-delay-1">
+            </div>
+            <div class="row cta-bottom reveal reveal-delay-1">
+                <div class="col-lg-6">
                     <div class="cta-contact">
-                        <div>
-                            <div class="cta-contact-label">Email</div>
-                            <a href="mailto:hello@hamon.in" class="cta-email">hello@hamon.in</a>
-                        </div>
                         <a href="mailto:hello@hamon.in" class="btn-interface">Initiate Contact</a>
+                        <a href="mailto:hello@hamon.in" class="cta-email">hello@hamon.in</a>
                     </div>
                 </div>
-            </div>
-            <div class="cta-nodes reveal reveal-delay-2">
-                <span class="cta-nodes-label">// Nodes</span>
-                <span>Calicut</span>
-                <span>Trivandrum</span>
-                <span>Mississauga</span>
-                <span>Mountain House</span>
+                <div class="col-lg-5 offset-lg-1">
+                    <div class="cta-nodes">
+                        <div class="cta-nodes-label">// Nodes</div>
+                        <div class="cta-nodes-list">
+                            <span>Calicut, India</span>
+                            <span>Trivandrum, India</span>
+                            <span>Mississauga, Canada</span>
+                            <span>Mountain House, USA</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
