@@ -135,10 +135,10 @@
     const terminalEl = document.getElementById('terminalText');
     if (terminalEl) {
         const phrases = [
-            'HAMON.AI — SYSTEMS INITIALIZED',
-            'LOADING AGENT REGISTRY...',
-            'NEURAL MESH CONNECTED',
-            'READY FOR INTERFACE',
+            'HAMON.AI — AGENTS ONLINE',
+            'DEPLOYING SERVICE SWARM...',
+            'HUMAN-LED. AGENT-POWERED.',
+            'READY TO BUILD',
         ];
         let phraseIdx = 0;
         let charIdx = 0;
